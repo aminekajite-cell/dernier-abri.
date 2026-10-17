@@ -4,7 +4,7 @@ Roguelite de cartes de survie zombie. Prototype jouable dans un navigateur.
 
 ## Jouer
 
-En ligne : https://aminekajite-cell.github.io/dernier-abri/
+En ligne : https://champion-game.github.io/dernier-abri/
 
 
 Ouvre `index.html` dans un navigateur. Aucune installation n'est nécessaire.
