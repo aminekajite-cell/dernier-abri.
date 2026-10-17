@@ -26,7 +26,7 @@ const SFX=(()=>{
   zgroan:[R3('zombie-',30),.5,.2],
   ui:[['ui-select_001','ui-select_002','ui-click_001'],.5,.06],place:[['ui-drop_001','ui-drop_002','ui-drop_003','ui-drop_004'],.7,.08],
   fuse:[['ui-confirmation_002'],.7,0],lvl:[['ui-confirmation_001'],.7,0],evo:[['ui-maximize_006'],.7,0],back:[['ui-back_001'],.6,.05],
-  shot:[['fx-shot1','fx-shot2','fx-shot3'],.32,.1],mg:[['fx-shot3','fx-shot2'],.24,.08,1.18],snp:[['fx-snp1','fx-snp2'],.5,.05],sht:[['fx-sht1','fx-sht2'],.42,.06],
+  shot:[['fx-shot1','fx-shot2','fx-shot3'],.32,.1],owl:[['amb-owl1','amb-owl2'],.5,.04],bed:[['amb-crickets','amb-insects'],0,0],card:[['ui-page'],.55,.08],cock:[['fx-cock'],.55,.05],mg:[['fx-shot3','fx-shot2'],.24,.08,1.18],snp:[['fx-snp1','fx-snp2'],.5,.05],sht:[['fx-sht1','fx-sht2','fx-sht3'],.42,.06],
   boom:[['fx-boom1','fx-boom2','fx-boom3'],.7,.08],melee:[['fx-melee000','fx-melee001','fx-melee002'],.5,.1],hit:[['fx-hit000','fx-hit001','fx-hit002'],.28,.12],
   bite:[['fx-bite000','fx-bite001','fx-bite002'],.42,.1],shelter:[['fx-shelter000','fx-shelter001','fx-shelter002'],.6,.06],lost:[['fx-lost000','fx-lost001','fx-lost002'],.55,.06]};
  const BUF={},EL={};let loaded=false;
@@ -83,7 +83,7 @@ const SFX=(()=>{
   try{const t=ac.currentTime;if(last[name]&&t-last[name]<gap)return;last[name]=t;if(sample(name))return;voice(.3);S[name](t+.01)}catch(e){}}
  // ambiance de nuit : vent filtré + grondement sourd + nappe musicale sombre, dont le volume suit l'obscurité ;
  // par-dessus, des bruits lointains au hasard : hiboux, loups, grognements de zombies, et quelques notes de musique.
- let music=null,nextEvt=0,nextNote=0;
+ let music=null,nextEvt=0,nextNote=0;const bed={};
  // un son qui glisse d'une fréquence à l'autre en suivant une courbe, avec un léger vibrato (loup, hibou)
  function glide(t,pts,{type='sine',vol=.08,vib=0,vibF=5,lp=1800}={}){
   const o=ac.createOscillator();o.type=type;o.frequency.setValueAtTime(pts[0][1],t);pts.slice(1).forEach(([dt,f])=>o.frequency.linearRampToValueAtTime(f,t+dt));
@@ -112,6 +112,10 @@ const SFX=(()=>{
     const g=ac.createGain();g.gain.value=0;const o=ac.createOscillator();o.type='sine';o.frequency.value=48;const og=ac.createGain();og.gain.value=.5;
     s.connect(fl);fl.connect(g);o.connect(og);og.connect(g);g.connect(musG);s.start();o.start();amb={g}}
    amb.g.gain.setTargetAtTime(.16*k,ac.currentTime,.3);
+   // v124 : grillons et insectes enregistrés, en boucle, qui montent avec la nuit
+   ['amb-crickets','amb-insects'].forEach((f,i)=>{const L=bed[f];if(!L&&BUF[f]){const s=ac.createBufferSource();s.buffer=BUF[f];s.loop=true;const g=ac.createGain();g.gain.value=0;s.connect(g);g.connect(musG);s.start();bed[f]={g}}
+    else if(!L&&EL[f]&&EL[f].readyState>=2&&!EL[f].loop){const a=EL[f];a.loop=true;a.volume=0;const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});bed[f]={a}}
+    const B=bed[f];if(!B)return;const v=(i?.22:.38)*k;if(B.g)B.g.gain.setTargetAtTime(v,ac.currentTime,.8);else B.a.volume=Math.max(0,Math.min(1,v*VOL.mus))});
    // nappe : accord de la mineur très grave qui respire lentement
    if(!music){const g=ac.createGain();g.gain.value=0;const fl=ac.createBiquadFilter();fl.type='lowpass';fl.frequency.value=600;fl.connect(g);g.connect(musG);
     [55,82.4,110,130.8].forEach((f,i)=>{const o=ac.createOscillator();o.type=i%2?'triangle':'sawtooth';o.frequency.value=f*(1+(i-1.5)*.002);
@@ -119,10 +123,10 @@ const SFX=(()=>{
      o.connect(og);og.connect(fl);o.start();l.start()});music={g}}
    music.g.gain.setTargetAtTime(.07*k,ac.currentTime,.8);
    const t=ac.currentTime;if(k<.6){nextEvt=t+3;nextNote=t+2;return}
-   if(t>nextEvt){const r=Math.random(),e=r<.32?'owl':r<.55?'wolf':r<.9?'groan':'crack';BUS=musG;try{AMB[e](t+.05)}finally{BUS=null}nextEvt=t+4+Math.random()*7}
+   if(t>nextEvt){const r=Math.random(),e=r<.32?'owl':r<.55?'wolf':r<.9?'groan':'crack';BUS=musG;try{if(!(e==='owl'&&sample('owl',.35+Math.random()*.25)))AMB[e](t+.05)}finally{BUS=null}nextEvt=t+4+Math.random()*7}
    if(t>nextNote){BUS=musG;try{const f=SCALE[Math.floor(Math.random()*SCALE.length)];note(t+.05,f,.035);if(Math.random()<.4)note(t+.9,SCALE[Math.floor(Math.random()*SCALE.length)],.025)}finally{BUS=null}nextNote=t+3.5+Math.random()*4}
   }catch(e){}}
- function toggle(){muted=!muted;try{localStorage.setItem('abri-mute',muted?'1':'0')}catch(e){}
+ function toggle(){muted=!muted;for(const f in bed)if(bed[f].a){try{muted?bed[f].a.pause():bed[f].a.play()}catch(e){}}try{localStorage.setItem('abri-mute',muted?'1':'0')}catch(e){}
   if(init()){master.gain.setTargetAtTime(muted?0:.55,ac.currentTime,.05);if(!muted)unlock()}return muted}
  // volumes des options (0 à 1)
  function setVol(sfx,mus){VOL.sfx=sfx;VOL.mus=mus;if(sfxG){sfxG.gain.setTargetAtTime(sfx,ac.currentTime,.05);musG.gain.setTargetAtTime(mus,ac.currentTime,.05)}}

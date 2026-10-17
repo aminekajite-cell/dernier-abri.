@@ -192,7 +192,7 @@ function cardFace(t,o={}){const U0=Z.U[t],D=o.base?U0:Z.stat(G,t),r=rar(t),st=ca
 const art=t=>{const u=Z.U[t]&&artUrl(t);return u?`<span class="art" style="background-image:url('${u}')"></span>`:svg(t)};
 const cc=t=>`var(--k-${Z.U[t].cat})`;
 // à changer à chaque mise en ligne : permet de vérifier sur le téléphone qu'on a la dernière version
-const VERSION='v123 · 17 oct.';
+const VERSION='v124 · 17 oct.';
 /* mise à jour automatique : version.txt (à la racine) contient le numéro de la dernière version publiée.
    Si la page chargée est plus ancienne (cache du site ou du téléphone), on la recharge avec une adresse neuve,
    ce qui contourne les deux caches. Une seule tentative par version, pour ne jamais boucler. */
@@ -283,7 +283,7 @@ function animPiles(){const pd=$('#pDraw'),px=$('#pDisc');if(!pd||!px)return;
  {const o=document.getElementById('ov');if(o&&!o.hidden)return}const rd=pd.getBoundingClientRect(),rx=px.getBoundingClientRect();
  if(S.reshuf){S.reshuf=0;for(let k=0;k<5;k++)fly(null,rx,rd,k*60,1);px.classList.add('pulse');setTimeout(()=>px.classList.remove('pulse'),600)}
  if(S.newDraw){const n=S.newDraw;S.newDraw=0;const cs=[...document.querySelectorAll('#hand .card[data-k]')].slice(-n);
-  cs.forEach((c,k)=>{c.style.visibility='hidden';fly(S.hand[+c.dataset.k],rd,c.getBoundingClientRect(),120+k*110,0,()=>{c.style.visibility=''})});if(n)setTimeout(()=>SFX.play('ui'),120)}
+  cs.forEach((c,k)=>{c.style.visibility='hidden';fly(S.hand[+c.dataset.k],rd,c.getBoundingClientRect(),120+k*110,0,()=>{c.style.visibility=''})});if(n)setTimeout(()=>SFX.play('card'),120)}
  const n=S.discard.length;if(DISC0<0||n<DISC0)DISC0=n;
  if(n>DISC0){const h=$('#hand').getBoundingClientRect();S.discard.slice(DISC0).slice(-5).forEach((t,k)=>fly(t,FLYSRC.shift()||LASTRECT||h,rx,k*90));DISC0=n}
  FLYSRC.length=0;LASTRECT=null}
@@ -1117,7 +1117,7 @@ function tapCell(i){
  tuto(1);if(!re)countPlay(t);if(build)useBuild(t);else S.hand.splice(S.sel,1);const mg=Z.place(G,t,i,R,false,{reuse:re});spentTrace(t);if(!D.instant)facing[i]=null;if(D.instant)S.discard.push(t);syncBoard();if(!build)S.sel=null;S.moveFrom=null;S.inspect=mg?i:null;
  if(!mg&&G.grid[i]&&G.grid[i].name){const q=tc(i);floatTxt(q.x,q.y-14,`${G.grid[i].name} rejoint l’abri`,'#f2b33d')}
  if(!mg&&G.grid[i]&&G.grid[i].leg){const q=tc(i);floatTxt(q.x,q.y+14,`Souvenir de ${G.grid[i].leg} : +1 dégât, +2 PV`,'#f2c23d',14);addFX({type:'ring',x:q.x,y:q.y,r:50,c:'#f2c23d',dur:600})}
- const p=D.instant&&!D.onUnit?CEN:tc(i);addFX({type:'ring',x:p.x,y:p.y,r:34,c:'#f2b33d',dur:350});SFX.play('place');
+ const p=D.instant&&!D.onUnit?CEN:tc(i);addFX({type:'ring',x:p.x,y:p.y,r:34,c:'#f2b33d',dur:350});SFX.play(D.cat==='shoot'?'cock':'place');
  const St=Z.stat(G,t);
  if(t==='food')floatTxt(CEN.x,CEN.y,`+${St.gain} PV`,'#9fd86b');
  if(t==='rep')G.grid.forEach((u,j)=>{if(u&&Z.U[u.t].block){const q=tc(j);floatTxt(q.x,q.y,`+${St.gain}`,'#9fd86b')}});
@@ -1423,7 +1423,7 @@ const ACT={
   (r.cards||[]).forEach(t=>S.discard.push(t));if(G.drawNow){drawCards(Math.min(G.drawNow,Math.max(0,Z.HAND_MAX-S.hand.length)));G.drawNow=0}syncBoard();S.phase='draft';S.picks=null;save();render();SFX.play('ui');
   show(`<h2 class="pw">${Z.DAWN[id].n}</h2><p>${r.txt}</p>${r.cards&&r.cards.length?`<p>Ajouté à ton deck : <b>${r.cards.map(t=>Z.U[t].n).join(', ')}</b>.</p>`:''}<button type="button" class="go" data-a="todraft">Continuer</button>`)},
  todraft:()=>dawnStep('draft'),
- draft:v=>{const k=v?S.draw.indexOf(v):-1;if(k>=0){S.draw.splice(k,1);S.next=v}dawnStep('shop')},
+ draft:v=>{const k=v?S.draw.indexOf(v):-1;if(k>=0){S.draw.splice(k,1);S.next=v;SFX.play('card')}dawnStep('shop')},
  shop:()=>shopScreen(),
  'shop-heal':()=>{if(Z.pay(G,'heal'))render();shopScreen()},
  'shop-store':()=>{if(Z.pay(G,'store')){S.store={c:Z.storeOffer(G,deckTypes(),R),b:[]};save();render();SFX.play('ui')}storeScreen()},
@@ -1520,7 +1520,7 @@ function title(){onTitle=true;show(`<h1 class="logo">${LOGO}</h1><p>Tiens <b>${Z
 
 ${META.best?`<p>Ton record : <b>${plural(META.best,'nuit survécue','nuits survécues')}</b> · total : <b>${META.total}</b> nuits sur ${plural(META.runs,'partie','parties')}.</p>`:''}${nextUnlockTxt()}
 ${(d=>d?`<button type="button" class="go" data-a="load">Continuer · ${d.s.phase?'Aube':'Jour'} ${d.g.night}</button><button type="button" class="skip" data-a="new">Nouvelle partie</button>`:'<button type="button" class="go" data-a="new">Jouer</button>')(loadSave())}
-<button type="button" class="skip" data-a="rules">Règles du jeu</button><button type="button" class="skip" data-a="coll">Collection et decks</button><button type="button" class="skip" data-a="daily">Défi du jour</button><button type="button" class="skip" data-a="deck">Cartes et bestiaire</button><button type="button" class="skip" data-a="stats">Statistiques</button><button type="button" class="skip" data-a="options">${ii('gear')} Options</button>${iosHint()?'<p class="ver">Sur iPhone : Partager → « Sur l’écran d’accueil » pour jouer en plein écran.</p>':''}<p class="ver">Sons : Kenney (kenney.nl), artisticdude et saturn91 (OpenGameArt), sous licence CC0.</p><p class="ver">${VERSION}</p>`)}
+<button type="button" class="skip" data-a="rules">Règles du jeu</button><button type="button" class="skip" data-a="coll">Collection et decks</button><button type="button" class="skip" data-a="daily">Défi du jour</button><button type="button" class="skip" data-a="deck">Cartes et bestiaire</button><button type="button" class="skip" data-a="stats">Statistiques</button><button type="button" class="skip" data-a="options">${ii('gear')} Options</button>${iosHint()?'<p class="ver">Sur iPhone : Partager → « Sur l’écran d’accueil » pour jouer en plein écran.</p>':''}<p class="ver">Sons : Kenney (kenney.nl), artisticdude et saturn91 (OpenGameArt), sous licence CC0 ; La Sonothèque (lasonotheque.org).</p><p class="ver">${VERSION}</p>`)}
 applyOpt();newGame();render();requestAnimationFrame(frame);title();
 
 // bouton son
