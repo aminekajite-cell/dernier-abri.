@@ -192,7 +192,7 @@ function cardFace(t,o={}){const U0=Z.U[t],D=o.base?U0:Z.stat(G,t),r=rar(t),st=ca
 const art=t=>{const u=Z.U[t]&&artUrl(t);return u?`<span class="art" style="background-image:url('${u}')"></span>`:svg(t)};
 const cc=t=>`var(--k-${Z.U[t].cat})`;
 // à changer à chaque mise en ligne : permet de vérifier sur le téléphone qu'on a la dernière version
-const VERSION='v124 · 17 oct.';
+const VERSION='v125 · 17 oct.';
 /* mise à jour automatique : version.txt (à la racine) contient le numéro de la dernière version publiée.
    Si la page chargée est plus ancienne (cache du site ou du téléphone), on la recharge avec une adresse neuve,
    ce qui contourne les deux caches. Une seule tentative par version, pour ne jamais boucler. */
@@ -894,9 +894,9 @@ function playEvents(ev,types,now){
    // gros zombies : éclair et secousse à leur mort
    if(v&&['fat','armor','howl','sap'].includes(v.k)&&!e.boss){shake(now,4);addFX({type:'flash',x:p.x,y:p.y,r:22,c:'rgba(255,120,80,.6)',dur:180})}
    if(e.boss){slowT=now+1800;shake(now,14);addFX({type:'ring',x:p.x,y:p.y,r:120,c:'#f2b33d',dur:900});addFX({type:'flash',x:p.x,y:p.y,r:50,c:'rgba(255,200,90,.9)',dur:700,light:T*3});burst(p.x,p.y,'rgba(140,20,24,.9)',30,.15,3);floatTxt(CEN.x,CEN.y-50,'LE COLOSSE EST TOMBÉ','#f2b33d',20);SFX.play('boom')}})}
- const SND={sap:'boom',rocket:'sht',doc:'shot',nailer:'mg',ranger:'snp',chief_comm:'shot',chief_tech:'mg',amb:'melee',orderly:'melee',chief_care:'melee',nightsnp:'snp',heavyflame:'flame',fortin:'shot',autogun:'mg',slaughter:'melee',gang:'shot',saint:'melee',tracker:'bow',k9squad:'melee',swat:'snp',vigile:'shot',hunter:'bow',sentry:'mg',turret:'mg',mortar:'sht',tesla:'hit',bunker:'shot',riot:'melee',k9:'melee',dogs:'melee',pitch:'melee',gun:'shot',kid:'shot',snp:'snp',sht:'sht',mg:'mg',xbow:'bow',flame:'flame',axe:'melee',dog:'melee',cop:'melee',butch:'melee',monk:'melee'};
+ const SND={v_hmg:'mg',v_sniper:'snp',v_rdog:'bark',v_apc:'melee',sap:'boom',rocket:'cannon',doc:'shot',nailer:'mg',ranger:'snp',chief_comm:'shot',chief_tech:'mg',amb:'melee',orderly:'melee',chief_care:'melee',nightsnp:'snp',heavyflame:'flame',fortin:'shot',autogun:'mg',slaughter:'melee',gang:'shot',saint:'melee',tracker:'bow',k9squad:'bark',swat:'snp',vigile:'shot',hunter:'bow',sentry:'mg',turret:'mg',mortar:'cannon',tesla:'hit',bunker:'shot',riot:'melee',k9:'bark',dogs:'bark',pitch:'melee',gun:'shot',kid:'shot',snp:'snp',sht:'sht',mg:'mg',xbow:'bow',flame:'flame',axe:'melee',dog:'bark',cop:'melee',butch:'melee',monk:'melee'};
  for(const e of ev){
-  try{if(e.k==='hit')SFX.play(SND[types[e.src]]||'hit');else if(e.k==='bite'||e.k==='spit')SFX.play(e.i===Z.C?'shelter':'bite');
+  try{if(e.k==='hit'){const sd=SND[types[e.src]]||'hit';SFX.play(sd,sd==='bark'?.7:undefined)}else if(e.k==='bite'||e.k==='spit')SFX.play(e.i===Z.C?'shelter':'bite');
    else if(e.k==='boom')SFX.play('boom');else if(e.k==='lost')SFX.play(e.name?'death':'lost',.3);else if(e.k==='ko')SFX.play('lost',.3);else if(e.k==='molo')SFX.play('flame');else if(e.k==='howl')SFX.play('groan',.2)}catch(x){}
   if(e.k==='hit'){const v=V.get(e.zid);const tp=v?(v.dying?{x:v.dx,y:v.dy}:zpos(v,now)):tc(e.i);if(v)v.flash=now;
    {const dm=parseInt(e.txt.replace('−',''))||0;floatTxt(tp.x,tp.y,e.txt,dm>=10?'#ff9a2e':dm>=4?'#ffd25a':'#ffffff',dm>=10?23:dm>=4?17:13);if(dm>=10)shake(now,3)}burst(tp.x,tp.y,'rgba(140,20,24,.9)',4,.06,2);splat(tp.x,tp.y,false);
@@ -1138,12 +1138,15 @@ function peekScreen(){
 // pause entre deux vagues d'une très grosse nuit : le joueur peut déplacer une unité et jouer ses réactions
 function wavePause(n){return new Promise(res=>{S.pause=n;S.moveFrom=null;S.inspect=null;S.resume=res;SFX.play('dawn');
  floatTxt(CEN.x,CEN.y-40,`Vague ${n} repoussée !`,'#9fd86b',18);render()})}
-function resumeWave(){if(!S.pause)return;S.pause=0;S.moveFrom=null;S.inspect=null;Z.nextWave(G);const f=S.resume;S.resume=null;floatTxt(CEN.x,CEN.y-40,`Vague ${G.wave} sur ${G.waves} : le Colosse arrive !`,'#ff6b6b',18);SFX.play('groan');render();f&&f()}
+function resumeWave(){if(!S.pause)return;S.pause=0;S.moveFrom=null;S.inspect=null;Z.nextWave(G);const f=S.resume;S.resume=null;floatTxt(CEN.x,CEN.y-40,`Vague ${G.wave} sur ${G.waves} : le Colosse arrive !`,'#ff6b6b',18);SFX.play('roar');render();f&&f()}
 async function night(){
  if(S.busy)return;S.busy=true;SPEED=OPT.speed||1;S.sel=null;S.drag=null;S.discard.push(...S.used);S.used=[];
  S.moveFrom=null;S.inspect=null;save();
  const scrap0=G.scrap,kills0=G.kills;
- if(GUIDE){GUIDE=false;if(TUTO<3){TUTO=3;try{localStorage.setItem('abri-tuto',3)}catch(e){}}}tuto(2);nightTarget=1;KC.n=0;KC.on=1;Z.startNight(G,R);render();await wait(900);
+ if(GUIDE){GUIDE=false;if(TUTO<3){TUTO=3;try{localStorage.setItem('abri-tuto',3)}catch(e){}}}tuto(2);nightTarget=1;KC.n=0;KC.on=1;Z.startNight(G,R);render();
+ // v125 : météo sonore (pluie, orage) et corne de la nuit rouge
+ try{SFX.setWeather(G.event.id==='pluie'?'amb-rain':G.event.id==='coupure'?'amb-storm':null);if(Z.pressure(G.night))setTimeout(()=>SFX.play('horn'),300)}catch(e){}
+ await wait(900);
  let r;
  do{const types=G.grid.map(u=>u&&u.t);
   r=Z.step(G);syncBoard();const now=performance.now();
@@ -1155,6 +1158,7 @@ async function night(){
   await wait(tickMs());
  }while(!r.done);
  await wait(700);
+ try{SFX.setWeather(null)}catch(e){}
  const dawnInfo=Z.endNight(G);syncBoard();nightTarget=0;KC.on=0;S.busy=false;render();await wait(900);
  if(G.shelter<=0)return end();
  const mut=Z.mutNight(G.night)?Z.mutate(G,R):null;
@@ -1240,7 +1244,7 @@ function victory(){G.won=1;const m=G.menace||0,pts=G.daily?0:Z.winPoints(m),unl=
   if(avail.length){relStart=avail[Math.floor(Math.random()*avail.length)];META.startPool=[...(META.startPool||[]),relStart]}}
  if(!G.daily&&!META.wins){OPT.back='gold';OPT.shelter='fort';saveOpt();applyOpt()}
  if(!G.daily){META.wins=(META.wins||0)+1;META.menaceWon=Math.max(META.menaceWon??-1,m);META.menace=Math.max(META.menace||0,Math.min(Z.MENACE_MAX,m+1));META.points=(META.points||0)+pts;saveMeta(META)}
- save();SFX.play('dawn');const alive=G.grid.filter(u=>u&&u.name).map(u=>u.name);
+ save();SFX.play('heli');setTimeout(()=>SFX.play('relic'),900);const alive=G.grid.filter(u=>u&&u.name).map(u=>u.name);
  show(`<img class="heli" src="assets/ui/heli.webp?v=121" alt=""><h2 class="ok">Les secours sont là !</h2><p>À l’aube de la nuit ${Z.WIN_NIGHT}, un hélicoptère se pose devant l’abri. Tu as tenu.</p><i class="bigstamp ok">Victoire${m?` · M${m}`:''}</i>
   <p><b>${G.kills}</b> zombies éliminés.${alive.length?` Survivants : ${alive.join(', ')}.`:''}</p>${pts?`<p>+<b>${pts}</b> points de survie (total : ${META.points}).</p>`:''}${META.wins===1&&!G.daily?`<p class="tipin">${ii('spark')} <b>Dos de carte doré</b> et <b>maison fortifiée</b> débloqués pour ta première victoire (modifiables dans les Options).</p>`:''}${unl?`<p class="tipin">${ii('unlock')} <b>Mutation ${m+1} débloquée</b> : ${Z.MENACES[m+1].n}. Choisis-la en préparant ta prochaine partie.</p>`:''}${cardUnl?`<p class="tipin">${ii('card')} <b>Carte de victoire</b> : ${Z.U[cardUnl].n} rejoint ta collection. Ajoute-la à ton deck.</p><div class="vcard">${cardFace(cardUnl,{base:1})}</div>`:''}${relUnl?`<p class="tipin">${ii('gift')} <b>Nouvelle relique débloquée</b> : ${Z.RELICS[relUnl].n} (${Z.RELICS[relUnl].d}). Tu pourras la trouver en partie.</p>`:''}${relStart?`<p class="tipin">${ii('pack')} <b>Relique de départ</b> : ${Z.RELICS[relStart].n} rejoint ta réserve. Choisis-la avant ta prochaine partie.</p>`:''}
   <button type="button" class="go" data-a="win-leave">Partir avec les secours</button><button type="button" class="skip" data-a="win-stay">Rester : une nuit de plus (mode infini, pour le score)</button>
@@ -1418,7 +1422,7 @@ const ACT={
  deck:()=>show(`<h2 class="pw">Les cartes</h2><p>Toutes les cartes du jeu, par type. Les règles sont dans <button type="button" class="round" data-a="rules">Règles du jeu</button>.</p>${deckHtml()}<h2 class="pw">Le bestiaire</h2>${zedHtml()}<h2 class="pw">Les mutations instables</h2><p>Une seule à la fois, elle change toutes les 5 nuits.</p><div class="deck">${Object.values(Z.MUTS).map(m=>`<div class="dk" style="--cc:var(--blood)">${svg('mut')}<span><b>${m.n}</b>${m.d}</span></div>`).join('')}</div><button type="button" class="go" data-a="title">Retour</button>`),
  dawn:()=>dawn(),
  lvl:v=>{const i=S.picks&&S.picks[0];if(i!=null&&Z.levelUp(G,i,v==='atk'?'atk':'def')){const p=tc(i);floatTxt(p.x,p.y-20,v==='atk'?'+1 dégât':'+3 PV','#9fd86b',15);addFX({type:'ring',x:p.x,y:p.y,r:44,c:'#9fd86b',dur:500})}S.phase=null;save();render();dawn()},
- relic:v=>{Z.addRelic(G,v);afterRelic()},
+ relic:v=>{Z.addRelic(G,v);SFX.play('relic');afterRelic()},
  evc:v=>{const id=S.picks&&S.picks[0];if(!id)return dawnStep('draft');const r=Z.resolveDawn(G,id,+v,R,deckList());
   (r.cards||[]).forEach(t=>S.discard.push(t));if(G.drawNow){drawCards(Math.min(G.drawNow,Math.max(0,Z.HAND_MAX-S.hand.length)));G.drawNow=0}syncBoard();S.phase='draft';S.picks=null;save();render();SFX.play('ui');
   show(`<h2 class="pw">${Z.DAWN[id].n}</h2><p>${r.txt}</p>${r.cards&&r.cards.length?`<p>Ajouté à ton deck : <b>${r.cards.map(t=>Z.U[t].n).join(', ')}</b>.</p>`:''}<button type="button" class="go" data-a="todraft">Continuer</button>`)},
@@ -1520,7 +1524,7 @@ function title(){onTitle=true;show(`<h1 class="logo">${LOGO}</h1><p>Tiens <b>${Z
 
 ${META.best?`<p>Ton record : <b>${plural(META.best,'nuit survécue','nuits survécues')}</b> · total : <b>${META.total}</b> nuits sur ${plural(META.runs,'partie','parties')}.</p>`:''}${nextUnlockTxt()}
 ${(d=>d?`<button type="button" class="go" data-a="load">Continuer · ${d.s.phase?'Aube':'Jour'} ${d.g.night}</button><button type="button" class="skip" data-a="new">Nouvelle partie</button>`:'<button type="button" class="go" data-a="new">Jouer</button>')(loadSave())}
-<button type="button" class="skip" data-a="rules">Règles du jeu</button><button type="button" class="skip" data-a="coll">Collection et decks</button><button type="button" class="skip" data-a="daily">Défi du jour</button><button type="button" class="skip" data-a="deck">Cartes et bestiaire</button><button type="button" class="skip" data-a="stats">Statistiques</button><button type="button" class="skip" data-a="options">${ii('gear')} Options</button>${iosHint()?'<p class="ver">Sur iPhone : Partager → « Sur l’écran d’accueil » pour jouer en plein écran.</p>':''}<p class="ver">Sons : Kenney (kenney.nl), artisticdude et saturn91 (OpenGameArt), sous licence CC0 ; La Sonothèque (lasonotheque.org).</p><p class="ver">${VERSION}</p>`)}
+<button type="button" class="skip" data-a="rules">Règles du jeu</button><button type="button" class="skip" data-a="coll">Collection et decks</button><button type="button" class="skip" data-a="daily">Défi du jour</button><button type="button" class="skip" data-a="deck">Cartes et bestiaire</button><button type="button" class="skip" data-a="stats">Statistiques</button><button type="button" class="skip" data-a="options">${ii('gear')} Options</button>${iosHint()?'<p class="ver">Sur iPhone : Partager → « Sur l’écran d’accueil » pour jouer en plein écran.</p>':''}<p class="ver">Sons : Kenney (kenney.nl), artisticdude et saturn91 (OpenGameArt), sous licence CC0 ; La Sonothèque, Pixabay, Sound Fishing (détails dans CREDITS.md).</p><p class="ver">${VERSION}</p>`)}
 applyOpt();newGame();render();requestAnimationFrame(frame);title();
 
 // bouton son
